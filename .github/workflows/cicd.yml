@@ -62,4 +62,14 @@ jobs:
               ${{ secrets.DOCKERHUB_USERNAME }}/api-shop:latest
       - name: Check
         run: |
-          curl -f http://${{ secrets.AZURE_HOST }}/health
+          echo "Waiting for application to be ready..."
+          for i in {1..10}; do
+            if curl -f http://${{ secrets.AZURE_HOST }}/health; then
+              echo "Application is up"
+              exit 0
+            fi
+            echo "Not ready yet... retrying"
+            sleep 5
+          done
+          echo "Application failed to start"
+          exit 1
